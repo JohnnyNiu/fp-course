@@ -75,8 +75,25 @@ headOr ::
   a
   -> List a
   -> a
-headOr =
-  error "todo: Course.List#headOr"
+
+-- Solution 1: pattern matching
+-- headOr _ (x:._) = x
+-- headOr v Nil = v
+
+-- Solution 2: foldRight
+-- func:: a -> b -> b
+-- func orValue = orValue
+-- func left orValue = left
+-- headOr value list = foldRight func value list
+headOr value list = foldRight const value list
+
+-- foldRight (+) 0 list
+-- list = 1:2:3:Nil
+-- result = 1+2+3+0
+
+-- foldRight func orValue list
+-- result = 1 `func` 2 `func` 3 `func` orValue
+-- result = orValue
 
 -- | The product of the elements of a list.
 --
@@ -91,8 +108,11 @@ headOr =
 product ::
   List Int
   -> Int
-product =
-  error "todo: Course.List#product"
+-- Solution 1
+-- product (x :. xs) = x * (product xs)
+-- product Nil = 1
+
+product = foldRight (*) 1 
 
 -- | Sum the elements of the list.
 --
@@ -106,8 +126,11 @@ product =
 sum ::
   List Int
   -> Int
-sum =
-  error "todo: Course.List#sum"
+-- Solution 1
+-- sum (x:.xs) = x + sum xs
+-- sum Nil = 0
+
+sum = foldRight (+) 0
 
 -- | Return the length of the list.
 --
@@ -118,8 +141,14 @@ sum =
 length ::
   List a
   -> Int
-length =
-  error "todo: Course.List#length"
+
+-- Solution 1
+-- length (_:.xs) = 1 + length xs
+-- length Nil = 0
+-- length = foldRight (\_ b -> 1 + b) 0
+-- =>
+length = foldRight ( const (1 + ) ) 0
+
 
 -- | Map the given function on each element of the list.
 --
@@ -133,8 +162,16 @@ map ::
   (a -> b)
   -> List a
   -> List b
-map =
-  error "todo: Course.List#map"
+-- pattern matching solution
+-- map f (x:.xs) = (f x):. (map f xs)
+-- map _ Nil = Nil
+-- FoldRight solution
+-- map f list= foldRight (\a b -> ((f a):.b)) Nil list
+-- Keep improving
+-- map f = foldRight (\a -> ((f a) :. )) Nil 
+-- keep improving again
+map f = foldRight ((:.) .  f) Nil
+
 
 -- | Return elements satisfying the given predicate.
 --
@@ -150,8 +187,13 @@ filter ::
   (a -> Bool)
   -> List a
   -> List a
-filter =
-  error "todo: Course.List#filter"
+-- pattern matching solution
+-- filter f (x:.xs) = case (f x) of
+--   True -> x :. (filter f xs)
+--   False ->  filter f xs
+-- filter _ Nil = Nil
+
+filter f = foldRight (\a ls -> if f a then a :. ls else ls) Nil
 
 -- | Append two lists to a new list.
 --
@@ -169,8 +211,11 @@ filter =
   List a
   -> List a
   -> List a
-(++) =
-  error "todo: Course.List#(++)"
+-- initial solution:
+-- (++) left right = foldRight (:.) right left
+-- improving with flip
+(++) = flip (foldRight (:.))
+
 
 infixr 5 ++
 
@@ -187,9 +232,7 @@ infixr 5 ++
 flatten ::
   List (List a)
   -> List a
-flatten =
-  error "todo: Course.List#flatten"
-
+flatten = foldRight (++) Nil
 -- | Map a function then flatten to a list.
 --
 -- >>> flatMap (\x -> x :. x + 1 :. x + 2 :. Nil) (1 :. 2 :. 3 :. Nil)
@@ -204,8 +247,14 @@ flatMap ::
   (a -> List b)
   -> List a
   -> List b
-flatMap =
-  error "todo: Course.List#flatMap"
+-- foldRight solution
+-- flatMap f = foldRight (\a  -> ((f a) ++ )) Nil
+-- alternative solution using map + flatten
+-- flatMap f xs= flatten (map f xs)
+-- improving using function composition
+flatMap f = flatten . map f
+
+
 
 -- | Flatten a list of lists to a list (again).
 -- HOWEVER, this time use the /flatMap/ function that you just wrote.
@@ -214,8 +263,7 @@ flatMap =
 flattenAgain ::
   List (List a)
   -> List a
-flattenAgain =
-  error "todo: Course.List#flattenAgain"
+flattenAgain = flatMap id
 
 -- | Convert a list of optional values to an optional list of values.
 --
@@ -242,8 +290,9 @@ flattenAgain =
 seqOptional ::
   List (Optional a)
   -> Optional (List a)
-seqOptional =
-  error "todo: Course.List#seqOptional"
+seqOptional = foldRight (twiceOptional (:.)) (Full Nil)
+
+
 
 -- | Find the first element in the list matching the predicate.
 --
