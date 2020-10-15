@@ -314,8 +314,12 @@ find ::
   (a -> Bool)
   -> List a
   -> Optional a
-find =
-  error "todo: Course.List#find"
+  -- Not correct, as it find the last predited index 
+-- find p = foldRight cons Empty
+--   where cons _ (Full b) = Full b
+--         cons a Empty = if p a then (Full a) else Empty
+find p = foldRight cons Empty
+  where cons a b = if p a then (Full a) else Empty
 
 -- | Determine if the length of the given list is greater than 4.
 --
@@ -330,11 +334,15 @@ find =
 --
 -- >>> lengthGT4 infinity
 -- True
-lengthGT4 ::
+lengthGT4 :: 
   List a
   -> Bool
-lengthGT4 =
-  error "todo: Course.List#lengthGT4"
+-- lengthGT4 xs = error "todo: Course.List#reverse"
+-- lengthGT4 xs =  0 < length( drop 3 xs )
+-- todo it's not perfect
+-- standard answer
+lengthGT4 (_:._:._:._:._) = True
+lengthGT4 _ = False
 
 -- | Reverse a list.
 --
@@ -350,8 +358,12 @@ lengthGT4 =
 reverse ::
   List a
   -> List a
-reverse =
-  error "todo: Course.List#reverse"
+  -- Not working on infinite
+-- reverse = foldRight (\a b -> b ++ (a:.Nil)) Nil
+-- Using foldRight and work on infinity
+-- reverse xs = foldRight (\a b -> flip (:.) b a) Nil xs
+reverse = foldLeft (flip (:.)) Nil 
+
 
 -- | Produce an infinite `List` that seeds with the given value at its head,
 -- then runs the given function for subsequent elements
