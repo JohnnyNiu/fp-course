@@ -318,8 +318,10 @@ find ::
 -- find p = foldRight cons Empty
 --   where cons _ (Full b) = Full b
 --         cons a Empty = if p a then (Full a) else Empty
-find p = foldRight cons Empty
-  where cons a b = if p a then (Full a) else Empty
+-- standard answer blow my mind
+find p x= case (filter p x) of
+          Nil -> Empty
+          (h :. _) -> (Full h )
 
 -- | Determine if the length of the given list is greater than 4.
 --
@@ -339,8 +341,8 @@ lengthGT4 ::
   -> Bool
 -- lengthGT4 xs = error "todo: Course.List#reverse"
 -- lengthGT4 xs =  0 < length( drop 3 xs )
--- todo it's not perfect
--- standard answer
+-- it's not perfect as it doesn't work with infinity
+-- standard answer blow my mind
 lengthGT4 (_:._:._:._:._) = True
 lengthGT4 _ = False
 
