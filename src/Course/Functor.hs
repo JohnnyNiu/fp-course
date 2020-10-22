@@ -18,12 +18,16 @@ import qualified Prelude as P(fmap)
 --
 -- * The law of composition
 --   `∀f g x.(f . g <$> x) ≅ (f <$> (g <$> x))`
+-- It's in video's 41` position
 class Functor k where
   -- Pronounced, eff-map.
   (<$>) ::
     (a -> b)
     -> k a
     -> k b
+-- Read the whole thing: We define a type class Functor of k, we have a method here called eff-map
+-- and <$> is method on class that takes a function `a to b', and convert it to a function that takes 'k a' to 'k b`
+-- So Functor is a way of lifting function 'a to b' to 'k your a to k b', lifting a function to your k, you have to choose what k is 
 
 infixl 4 <$>
 
@@ -41,8 +45,7 @@ instance Functor ExactlyOne where
     (a -> b)
     -> ExactlyOne a
     -> ExactlyOne b
-  (<$>) =
-    error "todo: Course.Functor (<$>)#instance ExactlyOne"
+  (<$>) f = ExactlyOne . f . runExactlyOne
 
 -- | Maps a function on the List functor.
 --
@@ -56,8 +59,7 @@ instance Functor List where
     (a -> b)
     -> List a
     -> List b
-  (<$>) =
-    error "todo: Course.Functor (<$>)#instance List"
+  (<$>) = map  
 
 -- | Maps a function on the Optional functor.
 --
@@ -71,8 +73,7 @@ instance Functor Optional where
     (a -> b)
     -> Optional a
     -> Optional b
-  (<$>) =
-    error "todo: Course.Functor (<$>)#instance Optional"
+  (<$>) = mapOptional
 
 -- | Maps a function on the reader ((->) t) functor.
 --
@@ -81,10 +82,10 @@ instance Functor Optional where
 instance Functor ((->) t) where
   (<$>) ::
     (a -> b)
-    -> ((->) t a)
-    -> ((->) t b)
-  (<$>) =
-    error "todo: Course.Functor (<$>)#((->) t)"
+    -> (t -> a)
+    -> ( t -> b)
+  (<$>) a2b t2a = 
+    \t -> a2b (t2a t)
 
 -- | Anonymous map. Maps a constant value on a functor.
 --
@@ -99,12 +100,13 @@ instance Functor ((->) t) where
   a
   -> k b
   -> k a
-(<$) =
-  error "todo: Course.Functor#(<$)"
+-- (<$) a kb = (<$>) (\_->a) kb
+a <$ kb = const a <$> kb
+ 
 
 -- | Anonymous map producing unit value.
 --
--- >>> void (1 :. 2 :. 3 :. Nil)
+-- >>> void (1 :. 2 :. 3 :. Nil)vvv
 -- [(),(),()]
 --
 -- >>> void (Full 7)
@@ -119,8 +121,7 @@ void ::
   Functor k =>
   k a
   -> k ()
-void =
-  error "todo: Course.Functor#void"
+void ka = const () <$> ka 
 
 -----------------------
 -- SUPPORT LIBRARIES --
